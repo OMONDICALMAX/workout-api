@@ -13,6 +13,21 @@ class Exercise(db.Model):
     category = db.Column(db.String(50), nullable=False)
     equipment_needed = db.Column(db.Boolean, nullable=False, default=False)
 
+    # One Exercise can appear in many WorkoutExercise records
+    workout_exercises = db.relationship(
+        "WorkoutExercise",
+        back_populates="exercise",
+        cascade="all, delete-orphan"
+    )
+
+    # An Exercise can belong to many Workouts through WorkoutExercise
+    workouts = db.relationship(
+        "Workout",
+        secondary="workout_exercises",
+        back_populates="exercises",
+        viewonly=True
+    )
+
     def __repr__(self):
         return f"<Exercise {self.name}>"
 
@@ -24,6 +39,21 @@ class Workout(db.Model):
     date = db.Column(db.Date, nullable=False)
     duration_minutes = db.Column(db.Integer, nullable=False)
     notes = db.Column(db.Text, nullable=True)
+
+    # One Workout can have many WorkoutExercise records
+    workout_exercises = db.relationship(
+        "WorkoutExercise",
+        back_populates="workout",
+        cascade="all, delete-orphan"
+    )
+
+    # A Workout can have many Exercises through WorkoutExercise
+    exercises = db.relationship(
+        "Exercise",
+        secondary="workout_exercises",
+        back_populates="workouts",
+        viewonly=True
+    )
 
     def __repr__(self):
         return f"<Workout {self.id}>"
@@ -50,6 +80,18 @@ class WorkoutExercise(db.Model):
     sets = db.Column(db.Integer, nullable=True)
     duration_seconds = db.Column(db.Integer, nullable=True)
 
+    # Each WorkoutExercise belongs to one Workout
+    workout = db.relationship(
+        "Workout",
+        back_populates="workout_exercises"
+    )
+
+    # Each WorkoutExercise belongs to one Exercise
+    exercise = db.relationship(
+        "Exercise",
+        back_populates="workout_exercises"
+    )
+
     __table_args__ = (
         db.UniqueConstraint(
             "workout_id",
@@ -64,3 +106,4 @@ class WorkoutExercise(db.Model):
             f"workout={self.workout_id} "
             f"exercise={self.exercise_id}>"
         )
+    
