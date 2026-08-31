@@ -115,7 +115,7 @@ pipenv shell
 Alternatively, commands can be executed using:
 
 ```bash
-pipenv run <command>
+pipenv run app.py
 ```
 
 ---
